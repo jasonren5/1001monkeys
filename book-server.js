@@ -23,7 +23,7 @@ io.sockets.on('connection', function (socket) {
 var mysql = require('mysql');
 
 var con = mysql.createConnection({
-  host: "http://ec2-18-191-98-21.us-east-2.compute.amazonaws.com",
+  host: "localhost",
   port: "3306",
   user: "root",
   password: "qwerty"
