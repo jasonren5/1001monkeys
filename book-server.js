@@ -7,7 +7,7 @@ var socketio = require('socket.io'),
 
 
 var app = express();
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname + '/client.html'));
 });
 app.use(express.static(path.join(__dirname, '/public')));
@@ -23,13 +23,13 @@ io.sockets.on('connection', function (socket) {
 var mysql = require('mysql');
 
 var con = mysql.createConnection({
-  host: "localhost",
-  port: "3306",
-  user: "root",
-  password: "qwerty"
+    host: "http://ec2-18-191-98-21.us-east-2.compute.amazonaws.com",
+    port: "3306",
+    user: "root",
+    password: "qwerty"
 });
 
-con.connect(function(err) {
-  if (err) throw err;
-  console.log("Connected!");
+con.connect(function (err) {
+    if (err) throw err;
+    console.log("Connected!");
 });
