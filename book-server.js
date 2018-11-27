@@ -19,3 +19,16 @@ var io = socketio.listen(server);
 io.sockets.on('connection', function (socket) {
     console.log("user connected");
 });
+
+var mysql = require('mysql');
+
+var con = mysql.createConnection({
+  host: "localhost",
+  user: "yourusername",
+  password: "yourpassword"
+});
+
+con.connect(function(err) {
+  if (err) throw err;
+  console.log("Connected!");
+});
