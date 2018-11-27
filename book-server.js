@@ -24,6 +24,7 @@ var mysql = require('mysql');
 
 var con = mysql.createConnection({
   host: "http://ec2-18-191-98-21.us-east-2.compute.amazonaws.com",
+  port: "3306",
   user: "root",
   password: "qwerty"
 });
