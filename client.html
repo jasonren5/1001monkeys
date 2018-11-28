@@ -48,17 +48,29 @@
             $("#login-row").show();
             $("#main-row").hide();
         }
-        
+
         function showBook() {
             $("#login-row").hide();
             $("#main-row").show();
         }
 
-        $("#loginButton").click( function() {
+        $("#loginButton").click(function () {
             var usr = $("#usernameField").val();
+            var pwd = $("#passwordField").val();
             console.log(usr);
-            socketio.emit('username', {
-                username = usr
+            socketio.emit('login-attempt', {
+                username = usr,
+                password = pwd
+            });
+        });
+
+        $("#registerButton").click(function () {
+            var usr = $("#usernameField").val();
+            var pwd = $("#passwordField").val();
+            console.log(usr);
+            socketio.emit('register-attempt', {
+                username = usr,
+                password = pwd
             });
         });
 
@@ -67,6 +79,10 @@
     <script>
         //main client socket.io stuff
         var socketio = io.connect();
+
+        socketio.on("user-exists", function () {
+            console.log("username already taken");
+        });
     </script>
 
 
