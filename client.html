@@ -14,11 +14,14 @@
 <body>
     <nav class="navbar navbar-dark bg-dark">
         <a class="nav-link" href="#">1001monkeys</a>
+        <a class="nav-link" href="#" id="main-row user-header"></a>
     </nav>
     <div class="container-fluid" id="main-container">
         <div class="row" id="main-row">
-            <div class="col-9" id="book">
-                example book
+            <div class="col-9" id="main-col">
+                <div id="book">example book</div>
+                <div id="vote">example vote</div>
+
             </div>
             <div class="col-3" id="chat">example chat</div>
         </div>
@@ -47,11 +50,21 @@
         function showLogin() {
             $("#login-row").show();
             $("#main-row").hide();
+            $("#vote-col").hide();
         }
 
         function showBook() {
             $("#login-row").hide();
             $("#main-row").show();
+            $("#vote").hide();
+            $("#book").show();
+        }
+
+        function showVote() {
+            $("#login-row").hide();
+            $("#main-row").show();
+            $("#vote").show();
+            $("#book").hide();
         }
 
         $("#loginButton").click(function () {
@@ -59,8 +72,8 @@
             var pwd = $("#passwordField").val();
             console.log(usr);
             socketio.emit('login-attempt', {
-                username = usr,
-                password = pwd
+                username: usr,
+                password: pwd
             });
         });
 
@@ -69,23 +82,29 @@
             var pwd = $("#passwordField").val();
             console.log(usr);
             socketio.emit('register-attempt', {
-                username = usr,
-                password = pwd
+                username: usr,
+                password: pwd
             });
         });
-
     </script>
 
     <script>
         //main client socket.io stuff
         var socketio = io.connect();
 
-        socketio.on("user-exists", function () {
-            console.log("username already taken");
+        //handles almost all server one line responses; TODO: make it actually print to page instead of console
+        socketio.on("server-message", function (data) {
+            console.log(data["message"]);
+        });
+
+        socketio.on('login-successful', function () {
+            showBook();
+        });
+
+        socketio.on("state-change", function () {
+            console.log("state changed");
         });
     </script>
-
-
 
 
 
