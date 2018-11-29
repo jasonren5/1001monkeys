@@ -38,8 +38,9 @@ sql.connect(function (err) {
 
 var minutes = 1;
 var interval = minutes * 60 * 1000;
-interval = minutes * 1000;
 var machineStarted = false;
+var serverState = false;
+//state: false = accepting submissions, true = accepting votes
 
 server.listen(8080)
 var io = socketio.listen(server);
@@ -48,8 +49,11 @@ io.sockets.on('connection', function (socket) {
   if (machineStarted == false) {
     machineStarted = true;
     setInterval(function () {
-      console.log("I am doing my 1 second check");
-      io.emit("state-change");
+      serverState = !serverState;
+      console.log("1 minuted passed! changing states to " + serverState);
+      io.emit("state-change", {
+        state: serverState
+      });
     }, interval);
   } else {
     console.log("game already started");
@@ -83,7 +87,9 @@ io.sockets.on('connection', function (socket) {
         socket.emit('server-message', {
           message: "successfully logged in"
         });
-        socket.emit('login-successful');
+        socket.emit('login-successful', {
+          username: username
+        });
       } else {
         console.log("error: login failed, user doesn't exist");
         socket.emit('server-message', {
@@ -91,6 +97,10 @@ io.sockets.on('connection', function (socket) {
         });
       }
     });
+  });
+
+  socket.on("react", function (data) {
+    console.log("react working!");
   });
 
 });
