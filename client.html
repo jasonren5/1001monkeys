@@ -12,23 +12,33 @@
 </head>
 
 <body>
+    <!-- nav is a bootstrap element, does the header bar -->
     <nav class="navbar navbar-dark bg-dark">
         <a class="nav-link" href="#">1001monkeys</a>
         <div id="user-header"></div>
     </nav>
+    <!-- main container for the content -->
     <div class="container-fluid" id="main-container">
-        <div class="row" id="main-row">
+        <div class="row main-row" id="main-row">
+            <!-- container for showing the book, and showing the submissions to vote on -->
             <div class="col-9" id="main-col">
                 <div id="book">example book</div>
-                <div id="submission-div">example submission
-                    <input type="text" id="submission" />
-                </div>
                 <div id="vote">example vote</div>
-
             </div>
             <div class="col-3" id="chat">example chat</div>
         </div>
+        <!-- container for the submit button for user submissions -->
+        <div class="row main-row" id="bottom-main-row">
+            <div class="col-9">
+                <div id="submission-div"></div>
+            </div>
+            <div class="col-3">
+                <!--intentionally left empty-->
+            </div>
 
+        </div>
+
+        <!-- login page, does not display at the same time as the above -->
         <div class="row" id="login-row">
             <div class="col-4"></div>
             <div class="col-4">
@@ -50,22 +60,24 @@
             showLogin();
         });
 
+
+        //toggles the display
         function showLogin() {
             $("#login-row").show();
-            $("#main-row").hide();
+            $(".main-row").hide();
             $("#vote-col").hide();
         }
 
         function showBook() {
             $("#login-row").hide();
-            $("#main-row").show();
+            $(".main-row").show();
             $("#vote").hide();
             $("#book").show();
         }
 
         function showVote() {
             $("#login-row").hide();
-            $("#main-row").show();
+            $(".main-row").show();
             $("#vote").show();
             $("#book").hide();
         }
@@ -92,6 +104,7 @@
     </script>
 
     <script>
+        var username = "";
         //main client socket.io stuff
         var socketio = io.connect();
 
@@ -100,8 +113,9 @@
             console.log(data["message"]);
         });
 
-        socketio.on('login-successful', function () {
+        socketio.on('login-successful', function (data) {
             showBook();
+            username = data.username;
         });
 
         socketio.on("state-change", function () {
@@ -110,7 +124,7 @@
     </script>
 
 
-
+    <!-- loads the scripts for jquery, bootstrap, react, and babel -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
         crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
@@ -126,39 +140,107 @@
     <!--
             <script src="/reactstuff/book.js" type="text/babel"></script>
         !-->
+
+    <!-- begins react components -->
     <script type="text/babel">
-            'use strict';
-            //import React from 'react';
-            const e = React.createElement;
+        'use strict';
+        //import React from 'react';
 
-            class UserPanel extends React.Component {
-                constructor(props) {
-                    super(props); 
-                    this.state = {username: "not logged in"};
-                }
-                changeUserName(data) {
-                    this.setState(data);
-                }
-                componentDidMount() {
-                    console.log("componentdidmount");
-                    this.props.socketio.on('login-successful', function (data) {
-                        this.changeUserName(data);
-                    }.bind(this));
-                }
-                //TODO 11/29: something is wrong, can't quite call ChangeUserName
-
-                render() {
-                    this.props.socketio.emit("react");
-                    return (
-                        <p>{this.state.username}</p>
-                    );
-                }
+        //renders the username, links to the userpage
+        class UserPanel extends React.Component {
+            constructor(props) {
+                super(props); 
+                this.state = {username: "not logged in"};
             }
-            ReactDOM.render(
-                <UserPanel name="your username" socketio={socketio} />,
-                document.getElementById('user-header')
-            );
-        </script>
+            changeUserName(data) {
+                this.setState(data);
+            }
+            componentDidMount() {
+                this.props.socketio.on('login-successful', function (data) {
+                    this.changeUserName(data);
+                }.bind(this));
+            }
+
+            render() {
+                return (
+                    <p>{this.state.username}</p>
+                );
+            }
+        }
+
+        class SubmissionForm extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = { value: '' };
+                this.handleChange = this.handleChange.bind(this);
+                this.handleSubmit = this.handleSubmit.bind(this);
+            }
+
+            handleChange(event) {
+                this.setState({ value: event.target.value });
+            }
+
+            handleSubmit(event) {
+                console.log('submission: ' + this.state.value);
+                this.props.socketio.emit('submit-text', {
+                    submission: this.state.value,
+                    username: username
+                });
+                event.preventDefault();
+            }
+            //TODO: make sure that submission is less than 240 chars (as of 11/29/19)
+            render() {
+                return (
+                    <form onSubmit={this.handleSubmit}>
+                        <label>
+                            Write the next line:
+                            <input type="text" value={this.state.value} onChange={this.handleChange} />
+                        </label>
+                        <input type="submit" value="Submit" />
+                    </form>
+                );
+            }
+        }
+        class Book extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = {value: "TITLE"};
+            }
+
+            updateBook(data) {
+                this.setState({ value: this.state.value + data });
+            }
+
+            componentDidMount() {
+                console.log("component mounted xd");
+                this.props.socketio.on('end-voting', function(data) {
+                    console.log("ending voting! current value is " + this.state.value);
+                    this.updateBook(data.submission);
+                    console.log("new book is " + this.state.value);
+                }.bind(this));
+
+            }
+
+            render() {
+                return (
+                    <p> state: {this.state.value} </p>
+                );
+            }
+        }
+
+        ReactDOM.render(
+            <UserPanel name="your username" socketio={socketio} />,
+            document.getElementById('user-header')
+        );
+        ReactDOM.render(
+            <SubmissionForm name={username} socketio={socketio}/>,
+            document.getElementById('submission-div')
+        );
+        ReactDOM.render(
+            <Book socketio={socketio} />,
+            document.getElementById('book')
+        );
+    </script>
 </body>
 
 </html>
