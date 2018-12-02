@@ -22,9 +22,16 @@
         <div class="row main-row" id="main-row">
             <!-- container for showing the book, and showing the submissions to vote on -->
             <div class="col-9" id="main-col">
+                <!--book, vote, and userpage divs are mutually exlusive; none of them should display at the same time-->
                 <div id="book">example book</div>
                 <div id="vote">example vote</div>
+                <div id="userpage">example userpage
+                    <div id="userpage-username">example_username</div>
+                    <div id="userpage-votes">example_votes</div>
+                    <div id="userpage-bio">example_bio</div>
+                </div>
             </div>
+            <!-- placeholder div for chat feature -->
             <div class="col-3" id="chat">example chat</div>
         </div>
         <!-- container for the submit button for user submissions -->
@@ -35,7 +42,6 @@
             <div class="col-3">
                 <!--intentionally left empty-->
             </div>
-
         </div>
 
         <!-- login page, does not display at the same time as the above -->
@@ -73,13 +79,21 @@
             $(".main-row").show();
             $("#vote").hide();
             $("#book").show();
+            $("#userpage").hide();
         }
 
         function showVote() {
             $("#login-row").hide();
-            $(".main-row").show();
             $("#vote").show();
             $("#book").hide();
+            $("#userpage").hide();
+        }
+
+        function showUser() {
+            $("#login-row").hide();
+            $("#vote").hide();
+            $("#book").hide();
+            $("#userpage").show();
         }
 
         $("#loginButton").click(function () {
@@ -118,8 +132,13 @@
             username = data.username;
         });
 
-        socketio.on("state-change", function () {
+        socketio.on("state-change", function (data) {
             console.log("state changed");
+            if (state) {
+                showVote();
+            } else {
+                showBook();
+            }
         });
     </script>
 
@@ -201,6 +220,9 @@
                 );
             }
         }
+
+        //TODO: need to pull the current value of the book from MYSQL;
+        //  users entering midway through day will only see the portion of the book that has been written since they have logged in
         class Book extends React.Component {
             constructor(props) {
                 super(props);
@@ -212,7 +234,6 @@
             }
 
             componentDidMount() {
-                console.log("component mounted xd");
                 this.props.socketio.on('end-voting', function(data) {
                     console.log("ending voting! current value is " + this.state.value);
                     this.updateBook(data.submission);
@@ -226,6 +247,33 @@
                     <p> state: {this.state.value} </p>
                 );
             }
+        }
+
+        //TODO build the userpage screen
+
+        //TODO: build the voting screen
+
+        class VotePanel extends React.Component {
+            constructor(props){
+                super(props);
+                this.state = {};
+            }
+        }
+
+        class Submission extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = {};
+            }
+        }
+
+        class VoteButton extends React.Component {
+            constructor(props){
+                super(props);
+                this.state = {voted: false};
+            }
+            
+            
         }
 
         ReactDOM.render(

@@ -12,6 +12,7 @@ app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname + '/client.html'));
 });
 app.use(express.static(path.join(__dirname, '/public')));
+//TODO: sessions?
 //app.use(session({
 // secret: 'poopy',
 // resave: false,
@@ -57,7 +58,6 @@ io.sockets.on('connection', function (socket) {
     machineStarted = true;
     setInterval(function () {
       serverState = !serverState;
-      console.log("1 minuted passed! changing states to " + serverState);
       if (!serverState) {
         console.log("serverState is now going back to submissions.")
         //TODO select all from submissions, find submission with highest votes, and then return that in emit
@@ -66,17 +66,27 @@ io.sockets.on('connection', function (socket) {
           //insertRow tracks the row with the highest amount of votes so that it can be appended to the book
           var insertRow = '';
           var highestVotes = -1;
-          for (var i = 0; i < result.length; i++) {
-            if (result[i].votes >= highestVotes) {
-              insertRow = result[i];
+          var submission = '';
+          if (result.length > 0) {
+            for (var i = 0; i < result.length; i++) {
+              if (result[i].votes >= highestVotes) {
+                insertRow = result[i];
+              }
             }
+            var myQuery = "INSERT INTO accepted_submissions (subid, uid, votes, text) VALUES = ?"
+            sql.query(myQuery, [insertRow], function (err) {
+              if (err) throw err;
+            });
+            submission = insertRow.text;
           }
-          var submission = insertRow.text;
           io.emit('end-voting', {
             submission: submission
           });
-          console.log(submission);
+          console.log("submission: " + submission);
+          sql.query("DELETE FROM submissions;");
         });
+      } else {
+        console.log("serverState is now going to voting procedure")
       }
       io.emit("state-change", {
         state: serverState
