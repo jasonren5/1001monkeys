@@ -276,7 +276,7 @@
         class UserPage extends React.Component {
             constructor(props) {
                 super(props);
-                this.state = {bio: '', username:''};
+                this.state = {bio: '', username:'', submissions: []};
             }
 
             componentDidMount() {
@@ -284,7 +284,10 @@
                     this.setState({username: data.username});
                     console.log("username from Userpage: " + data.username + ", " + this.state.username);
                     this.props.socketio.emit('get-bio', {
-                    username: this.state.username
+                        username: this.state.username
+                    });
+                    this.props.socketio.emit('get-user-submissions', {
+                        username:this.state.username
                     });
                 }.bind(this));
 
@@ -292,10 +295,18 @@
                     this.setState({bio: data.bio});
                     console.log("data.bio: " + data.bio + ", this.state.bio: " + this.state.bio);
                 }.bind(this));
+
+                this.props.socketio.on('give-user-submissions', function (data) {
+                    console.log("got user's accepted submissions");
+                    this.setState({submissions: data.accepted_submissions});
+                });
             }
 
             render() {
-                console.log("userpage :[");
+                var rows = [];
+                for (var i = 0; i < this.state.submissions.length; i ++) {
+                    rows.push()
+                }
                 return(
                     <div>
                         <p id="userpage-username"> {this.state.username} </p>
@@ -327,9 +338,9 @@
                 var rows = [];
                 if (this.state.submissions.length > 0) {
                     for (var i = 0; i < this.state.submissions.length; i++) {
-                        rows.push(<tr> <Submission key={i} text={this.state.submissions[i].text} socketio={this.props.socketio}/> </tr>);
+                        rows.push(<tr> <td> <Submission key={i} showVote="true" text={this.state.submissions[i].text} socketio={this.props.socketio}/> </td> </tr>);
                     }
-                    return (<table> {rows} </table>);
+                    return (<table> <tbody> {rows} </tbody> </table>);
                     this.setState({submissions: []});
                 }
                 else {
@@ -344,15 +355,24 @@
                 this.state = {};
             }
             render() {
-                return (
-                    //TODO: this probably needs a class name
-                    <div>
-                    <p>{this.props.text}</p>
-                    
-                    <VoteButton socketio={this.props.socketio} text={this.props.text}/>
-                    </div>
-                );
+                if (this.props.showVote == "true") {
+                    return (
+                        //TODO: this probably needs a class name
+                        <div>
+                        <p>{this.props.text}</p>
+                        <VoteButton socketio={this.props.socketio} text={this.props.text}/>
+                        </div>
+                    );
+                } else {
+                    return (
+                        //TODO: this probably needs a class name
+                        <div>
+                        <p>{this.props.text}</p>
+                        </div>
+                    );
+                }
             }
+
         }
 
         
