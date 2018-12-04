@@ -14,7 +14,7 @@
 <body>
     <!-- nav is a bootstrap element, does the header bar -->
     <nav class="navbar navbar-dark bg-dark">
-        <a class="nav-link" href="#">1001monkeys</a>
+        <a id="homelink" class="nav-link" href="#">1001monkeys</a>
         <div id="user-header"></div>
     </nav>
     <!-- main container for the content -->
@@ -115,6 +115,14 @@
                 password: pwd
             });
         });
+
+        $("#user-header").click(function () {
+            showUser();
+        });
+
+        $("#homelink").click(function () {
+            show
+        });
     </script>
 
     <script>
@@ -134,12 +142,16 @@
 
         socketio.on("state-change", function (data) {
             console.log("state changed");
-            if (state) {
+            if (data.state) {
                 showVote();
             } else {
                 showBook();
             }
         });
+
+
+
+
     </script>
 
 
@@ -155,10 +167,6 @@
     <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
 
-    <!-- load react components -->
-    <!--
-            <script src="/reactstuff/book.js" type="text/babel"></script>
-        !-->
 
     <!-- begins react components -->
     <script type="text/babel">
@@ -226,7 +234,7 @@
         class Book extends React.Component {
             constructor(props) {
                 super(props);
-                this.state = {value: "TITLE"};
+                this.state = {value: ""};
             }
 
             updateBook(data) {
@@ -240,6 +248,12 @@
                     console.log("new book is " + this.state.value);
                 }.bind(this));
 
+                this.props.socketio.on('give-current-book', function (data) {
+                    console.log('current book is: ' + data.text);
+                    this.updateBook(data.text);
+                    console.log("today's book is " + this.state.value);
+                }.bind(this));
+
             }
 
             render() {
@@ -250,13 +264,62 @@
         }
 
         //TODO build the userpage screen
+        class UserPage extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = {bio: ''};
+            }
+
+            componentDidMount() {
+                this.props.socketio.emit('get-bio', {
+                    username: this.props.name
+                }.bind(this));
+
+                this.props.socketio.on('give-bio', function (data) {
+                    this.setState({bio: data.bio});
+                }.bind(this));
+            }
+
+            render() {
+                return(
+                    <div>
+                        <p id="userpage-username"> {this.props.name} </p>
+                        <hr />
+                        <p id="userpage-userbio"> EXAMPLE BIO </p>
+                    </div>
+                );
+            }
+        }
 
         //TODO: build the voting screen
 
         class VotePanel extends React.Component {
             constructor(props){
                 super(props);
-                this.state = {};
+                this.state = {submissions: []};
+            }
+            componentDidMount() {
+                this.props.socketio.on('end-submissions', function (data) {
+                    console.log(data.submissions);
+                    if (data.submissions.length > 0) {
+                        this.setState({submissions: data.submissions});
+                    } else {
+                        this.setState({submissions: ''});
+                    }
+                }.bind(this));
+            }
+            render() {
+                var rows = [];
+                if (this.state.submissions.length > 0) {
+                    for (var i = 0; i < this.state.submissions.length; i++) {
+                        rows.push(<tr> <Submission key={i} text={this.state.submissions[i].text} socketio={this.props.socketio}/> </tr>);
+                    }
+                    return (<table> {rows} </table>);
+                    this.setState({submissions: []});
+                }
+                else {
+                    return (<p> no submissions recieved :sadface: </p>);
+                }
             }
         }
 
@@ -265,15 +328,48 @@
                 super(props);
                 this.state = {};
             }
+            render() {
+                return (
+                    //TODO: this probably needs a class name
+                    <div>
+                    <p>{this.props.text}</p>
+                    
+                    <VoteButton socketio={this.props.socketio} text={this.props.text}/>
+                    </div>
+                );
+            }
         }
+
+        const e = React.createElement;
 
         class VoteButton extends React.Component {
             constructor(props){
                 super(props);
                 this.state = {voted: false};
             }
-            
-            
+            //TODO: need a socketio.on end voting that sets the state to false
+            componentDidMount() {
+                this.props.socketio.on('end-voting', function() {
+                    this.setState({voted: false});
+                }.bind(this));
+                this.setState({voted: false});
+            }
+            render() {
+                if (this.state.voted) {
+                    return ('you voted for this');
+                }
+                return e(
+                    'button',
+                    {onClick: () => {
+                        this.setState({voted: true});
+                        this.props.socketio.emit('voted', {
+                            text: this.props.text
+                            })
+                        }
+                    },
+                    'vote' 
+                );
+            }
         }
 
         ReactDOM.render(
@@ -288,6 +384,17 @@
             <Book socketio={socketio} />,
             document.getElementById('book')
         );
+
+        ReactDOM.render(
+            <VotePanel socketio={socketio} />,
+            document.getElementById('vote')
+        );
+
+        ReactDOM.render(
+            <UserPage name={username} socketio={socketio} />,
+            document.getElementById('userpage')
+        );
+        
     </script>
 </body>
 
