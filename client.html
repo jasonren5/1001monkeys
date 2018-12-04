@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
         crossorigin="anonymous">
     <link rel="stylesheet" href="/css/style.css">
+    <!--loads the socketio library-->
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <!--loads the jquery library-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 </head>
 
@@ -179,6 +181,7 @@
     <script type="text/babel">
         'use strict';
         //import React from 'react';
+        const e = React.createElement;
 
         //renders the username, links to the userpage
         class UserPanel extends React.Component {
@@ -236,8 +239,7 @@
             }
         }
 
-        //TODO: need to pull the current value of the book from MYSQL;
-        //  users entering midway through day will only see the portion of the book that has been written since they have logged in
+        
         class Book extends React.Component {
             constructor(props) {
                 super(props);
@@ -353,7 +355,7 @@
             }
         }
 
-        const e = React.createElement;
+        
 
         class VoteButton extends React.Component {
             constructor(props){
@@ -402,8 +404,8 @@
             <VotePanel socketio={socketio} />,
             document.getElementById('vote-content')
         );
-
-        //TODO: need a way to properly update the username
+        
+        //I don't actually think the name prop is ever used now 
         ReactDOM.render(
             <UserPage name={username} socketio={socketio} />,
             document.getElementById('userpage')

@@ -47,23 +47,29 @@ var serverState = false;
 server.listen(8080)
 var io = socketio.listen(server);
 io.sockets.on('connection', function (socket) {
+    console.log("user connected");
 
 
+    //calculates date, mainly used in stuff related to Book table, which relies on date
     var date = new Date();
-    var day = date.getDate();
     var month = date.getMonth();
+    //var year = date.getUTCFullYear();
     var year = date.getFullYear();
+    var day = date.getDate();
+
+
     if (day < 10) {
-        day = '0' + day
+        day = '0' + day;
     }
     if (month < 10) {
-        month = '0' + month
+        month = '0' + month;
     }
+
+    //TODO? months are apparently 0 indexed, are days? doesn't actually matter, but the dates in the Book table are wrong
     date = month + '-' + day + '-' + year;
 
-    //socket.emit('give-current-book',)
 
-    console.log("user connected");
+
     //only begins the timer for the room if the timer has not been started
     //  (timer/interval first starts when the first user connects)
     //  essentially a finite state machine that transitions between 2 states on time,
@@ -188,7 +194,10 @@ io.sockets.on('connection', function (socket) {
                 });
             }
         });
-        sql.query('SELECT username, password FROM users WHERE username = ?', username, function (err, result, fields) {
+        //the actual logging in code, the above is just to return the text for today's book
+        sql.query('SELECT username, password FROM users WHERE username = ?', username, function (err, result) {
+            if (err) throw err;
+            //checks to see if the user exists
             if (result.length > 0) {
                 socket.emit('server-message', {
                     message: "successfully logged in"
@@ -197,6 +206,7 @@ io.sockets.on('connection', function (socket) {
                     username: username
                 });
             } else {
+                //user does not exist (SQL query returned 0 rows)
                 console.log("error: login failed, user doesn't exist");
                 socket.emit('server-message', {
                     message: "user doesn't exist"
@@ -212,6 +222,7 @@ io.sockets.on('connection', function (socket) {
         var username = data["username"];
         var submission = data["submission"];
         const votes = 0;
+        //grabs the user ID based on the current username, used to input into submissions
         sql.query('SELECT uid FROM users WHERE username = ?', username, function (err, results, fields) {
             if (err) throw err;
             userid = Number(results[0].uid);
@@ -233,6 +244,7 @@ io.sockets.on('connection', function (socket) {
         });
     });
 
+    //called when logging in to put on the user's page -- this can be used also to grab other users bio, though currently not implemented (12/3)
     socket.on('get-bio', function (data) {
         console.log('bio requested by ' + data["username"]);
         var getBio = '';
@@ -245,6 +257,7 @@ io.sockets.on('connection', function (socket) {
         });
     });
 
+    //used to get a user's accepted submissions to put on a user page-- maybe also need to get the user's total votes
     socket.on('get-user-submissions', function (data) {
         username = data["username"];
         sql.query("SELECT uid FROM users WHERE user = ?", username, function (err, result) {
