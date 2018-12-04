@@ -1,6 +1,7 @@
 body {
     background-color: #000000;
     color: #ffffff;
+    font-size: 130%;
 }
 
 .col-9 {
@@ -8,9 +9,14 @@ body {
 }
 
 #main-row {
-    height: 800px;
+    height: 700px;
 }
 
 #userpage-username {
     font-size: 3em;
+}
+
+.title {
+    font-size: 3em;
+    text-align: center;
 }

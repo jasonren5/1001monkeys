@@ -60,17 +60,7 @@ io.sockets.on('connection', function (socket) {
         month = '0' + month
     }
     date = month + '-' + day + '-' + year;
-    //need to give user current book for the day
-    sql.query("SELECT text FROM books WHERE date = ?", date, function (err, result) {
-        if (err) throw err;
-        console.log('user detected, emitting book of the day');
-        if (result.length > 0) {
-            console.log("today's book text: " + result[0].text);
-            io.emit('give-current-book', {
-                text: result[0].text
-            });
-        }
-    });
+
     //socket.emit('give-current-book',)
 
     console.log("user connected");
@@ -187,6 +177,17 @@ io.sockets.on('connection', function (socket) {
         var username = data["username"];
         var password = data["password"];
         //checks to see if the account exists
+        //need to give user current book for the day
+        sql.query("SELECT text FROM books WHERE date = ?", date, function (err, result) {
+            if (err) throw err;
+            console.log('user detected, emitting book of the day');
+            if (result.length > 0) {
+                console.log("today's book text: " + result[0].text);
+                socket.emit('give-current-book', {
+                    text: result[0].text
+                });
+            }
+        });
         sql.query('SELECT username, password FROM users WHERE username = ?', username, function (err, result, fields) {
             if (result.length > 0) {
                 socket.emit('server-message', {
@@ -238,11 +239,26 @@ io.sockets.on('connection', function (socket) {
         sql.query("SELECT bio FROM users where username = ?", data["username"], function (err, result) {
             if (err) throw err;
             getBio = result[0].bio;
-            console.log("bio: " + getBio);
+            socket.emit('give-bio', {
+                bio: getBio
+            });
         });
-        socket.emit('give-bio', {
-            bio: getBio
+    });
+
+    socket.on('get-user-submissions', function (data) {
+        username = data["username"];
+        sql.query("SELECT uid FROM users WHERE user = ?", username, function (err, result) {
+            if (err) throw err;
+            var uid = result[0].uid;
+            sql.query("SELECT (text, votes) FROM accepted_submissions WHERE uid = ?", uid, function (err, results) {
+                if (err) throw err;
+                //emit stuff
+                socket.emit('give-user-submissions', {
+                    accepted_submissions: results
+                });
+            });
         });
+        //sql.query("SELECT (text, votes) FROM accepted_submissions where ")
     });
 
     //DEBUG function, checked to see if React component could interact with socketio server

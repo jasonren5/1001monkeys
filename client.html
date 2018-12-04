@@ -23,8 +23,15 @@
             <!-- container for showing the book, and showing the submissions to vote on -->
             <div class="col-9" id="main-col">
                 <!--book, vote, and userpage divs are mutually exlusive; none of them should display at the same time-->
-                <div id="book">example book</div>
-                <div id="vote">example vote</div>
+
+                <div id="book">
+                    <div class="title">TODAY'S BOOK</div>
+                    <div id="book-content">example book</div>
+                </div>
+                <div id="vote">
+                    <div class="title">VOTE FOR THE NEXT ADDITION TO TODAY'S BOOK</div>
+                    <div id="vote-content">example vote </div>
+                </div>
                 <div id="userpage">example userpage
                     <div id="userpage-username">example_username</div>
                     <div id="userpage-votes">example_votes</div>
@@ -258,7 +265,7 @@
 
             render() {
                 return (
-                    <p> state: {this.state.value} </p>
+                    <p> {this.state.value} </p>
                 );
             }
         }
@@ -281,6 +288,7 @@
 
                 this.props.socketio.on('give-bio', function (data) {
                     this.setState({bio: data.bio});
+                    console.log("data.bio: " + data.bio + ", this.state.bio: " + this.state.bio);
                 }.bind(this));
             }
 
@@ -387,12 +395,12 @@
         );
         ReactDOM.render(
             <Book socketio={socketio} />,
-            document.getElementById('book')
+            document.getElementById('book-content')
         );
 
         ReactDOM.render(
             <VotePanel socketio={socketio} />,
-            document.getElementById('vote')
+            document.getElementById('vote-content')
         );
 
         //TODO: need a way to properly update the username
