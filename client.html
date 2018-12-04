@@ -299,19 +299,27 @@
                 this.props.socketio.on('give-user-submissions', function (data) {
                     console.log("got user's accepted submissions");
                     this.setState({submissions: data.accepted_submissions});
-                });
+                }.bind(this));
             }
 
             render() {
                 var rows = [];
                 for (var i = 0; i < this.state.submissions.length; i ++) {
-                    rows.push()
+                    rows.push(<tr> <td> <Submission key={i} showVote="false" text={this.state.submissions[i].text} socketio={this.props.socketio}/> </td> </tr>);
+                }
+                //TODO: need to caculate total votes recieved
+                var votes = 0;
+                for (var i = 0; i < this.state.submissions.length; i++) {
+                    votes = votes + this.state.submissions[i].votes;
                 }
                 return(
                     <div>
-                        <p id="userpage-username"> {this.state.username} </p>
+                        <p id="userpage-username"> {this.state.username}, {votes} </p>
                         <hr />
                         <p id="userpage-userbio"> {this.state.bio} </p>
+                        <br />
+                        <br />
+                        {rows}
                     </div>
                 );
             }

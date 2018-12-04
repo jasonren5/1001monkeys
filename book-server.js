@@ -260,11 +260,14 @@ io.sockets.on('connection', function (socket) {
     //used to get a user's accepted submissions to put on a user page-- maybe also need to get the user's total votes
     socket.on('get-user-submissions', function (data) {
         username = data["username"];
-        sql.query("SELECT uid FROM users WHERE user = ?", username, function (err, result) {
+        sql.query("SELECT uid FROM users WHERE username = ?", username, function (err, result) {
             if (err) throw err;
             var uid = result[0].uid;
-            sql.query("SELECT (text, votes) FROM accepted_submissions WHERE uid = ?", uid, function (err, results) {
-                if (err) throw err;
+            sql.query("SELECT text, votes FROM accepted_submissions WHERE uid = ?", uid, function (err, results) {
+                if (err) {
+                    console.log(this.sql);
+                    throw err;
+                }
                 //emit stuff
                 socket.emit('give-user-submissions', {
                     accepted_submissions: results

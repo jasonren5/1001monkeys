@@ -2,14 +2,20 @@ body {
     background-color: #000000;
     color: #ffffff;
     font-size: 130%;
+    height: 100%;
+    margin: 0;
 }
 
+.container-fluid {
+    height: 100%;
+}
 .col-9 {
     border-right: 1px, #ffffff;
 }
 
 #main-row {
-    height: 700px;
+    display: flex;
+    height: 90%;
 }
 
 #userpage-username {
