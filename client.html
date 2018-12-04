@@ -267,12 +267,16 @@
         class UserPage extends React.Component {
             constructor(props) {
                 super(props);
-                this.state = {bio: ''};
+                this.state = {bio: '', username:''};
             }
 
             componentDidMount() {
-                this.props.socketio.emit('get-bio', {
-                    username: this.props.name
+                this.props.socketio.on('login-successful', function (data) {
+                    this.setState({username: data.username});
+                    console.log("username from Userpage: " + data.username + ", " + this.state.username);
+                    this.props.socketio.emit('get-bio', {
+                    username: this.state.username
+                    });
                 }.bind(this));
 
                 this.props.socketio.on('give-bio', function (data) {
@@ -281,11 +285,12 @@
             }
 
             render() {
+                console.log("userpage :[");
                 return(
                     <div>
-                        <p id="userpage-username"> {this.props.name} </p>
+                        <p id="userpage-username"> {this.state.username} </p>
                         <hr />
-                        <p id="userpage-userbio"> EXAMPLE BIO </p>
+                        <p id="userpage-userbio"> {this.state.bio} </p>
                     </div>
                 );
             }
@@ -390,6 +395,7 @@
             document.getElementById('vote')
         );
 
+        //TODO: need a way to properly update the username
         ReactDOM.render(
             <UserPage name={username} socketio={socketio} />,
             document.getElementById('userpage')

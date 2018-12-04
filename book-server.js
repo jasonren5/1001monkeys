@@ -233,11 +233,12 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('get-bio', function (data) {
-        console.log('bio requested by ' + data.username);
+        console.log('bio requested by ' + data["username"]);
         var getBio = '';
-        sql.query("SELECT bio FROM users where USERNAME = ?", data.username, function (err, result) {
+        sql.query("SELECT bio FROM users where username = ?", data["username"], function (err, result) {
             if (err) throw err;
             getBio = result[0].bio;
+            console.log("bio: " + getBio);
         });
         socket.emit('give-bio', {
             bio: getBio

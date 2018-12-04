@@ -10,3 +10,7 @@ body {
 #main-row {
     height: 800px;
 }
+
+#userpage-username {
+    font-size: 3em;
+}
