@@ -277,6 +277,15 @@ io.sockets.on('connection', function (socket) {
         //sql.query("SELECT (text, votes) FROM accepted_submissions where ")
     });
 
+    socket.on('give-chat', function (data) {
+        var user = data.username;
+        var usermsg = data.submission;
+        var msg = user + ": " + usermsg;
+        io.emit('get-chat', {
+            msg: msg
+        });
+    });
+
     //DEBUG function, checked to see if React component could interact with socketio server
     socket.on("react", function (data) {
         console.log("react working!");

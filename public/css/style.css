@@ -10,11 +10,10 @@ body {
     height: 100%;
 }
 .col-9 {
-    border-right: 1px, #ffffff;
+    border-right: 1px solid #ffffff;
 }
 
 #main-row {
-    display: flex;
     height: 90%;
 }
 

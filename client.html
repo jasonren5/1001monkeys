@@ -227,7 +227,7 @@
                 }
                 if (this.props.type == "chat") {
                     console.log('chat message: ' + this.state.value);
-                    this.props.socketio.emit('submit-chat', {
+                    this.props.socketio.emit('give-chat', {
                         submission: this.state.value,
                         username: username
                     });
@@ -282,7 +282,6 @@
                 this.props.socketio.on('give-current-book', function (data) {
                     console.log('current book is: ' + data.text);
                     this.updateBook(data.text);
-                    console.log("today's book is " + this.state.value);
                 }.bind(this));
 
             }
@@ -294,7 +293,7 @@
             }
         }
 
-        //TODO build the userpage screen
+        
         class UserPage extends React.Component {
             constructor(props) {
                 super(props);
@@ -329,7 +328,7 @@
                 for (var i = 0; i < this.state.submissions.length; i ++) {
                     rows.push(<tr> <td> <Submission key={i} showVote="false" text={this.state.submissions[i].text} socketio={this.props.socketio}/> </td> </tr>);
                 }
-                //TODO: need to caculate total votes recieved
+                
                 var votes = 0;
                 for (var i = 0; i < this.state.submissions.length; i++) {
                     votes = votes + this.state.submissions[i].votes;
@@ -347,7 +346,7 @@
             }
         }
 
-        //TODO: build the voting screen
+        
 
         class VotePanel extends React.Component {
             constructor(props){
@@ -440,14 +439,21 @@
         class ChatPanel extends React.Component{
             constructor(props) {
                 super(props);
-                this.state = {chat: []};
+                this.state = {chat: ['']};
+            }
+
+            componentDidMount() {
+                this.props.socketio.on('get-chat', function(data) {
+                    console.log("chat message recieved " + data.msg);
+                    var newmsg = <tr><td> {data.msg} </td></tr>;
+                    //this.setState({chat: this.state.chat});
+                    this.setState({chat: [...this.state.chat, newmsg] });
+                }.bind(this));
             }
 
             render() {
                 return (
-                    <div>
-                        <p> chat panel example </p>
-                    </div>
+                  <table><tbody> {this.state.chat} </tbody></table>
                 );
             }
         }
