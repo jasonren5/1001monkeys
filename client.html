@@ -49,7 +49,7 @@
                 <div id="submission-div"></div>
             </div>
             <div class="col-3">
-                <!--intentionally left empty-->
+                <div id="chat-submit-div"></div>
             </div>
         </div>
 
@@ -218,24 +218,46 @@
             }
 
             handleSubmit(event) {
-                console.log('submission: ' + this.state.value);
-                this.props.socketio.emit('submit-text', {
-                    submission: this.state.value,
-                    username: username
-                });
+                if (this.props.type == "vote") {
+                    console.log('submission: ' + this.state.value);
+                    this.props.socketio.emit('submit-text', {
+                        submission: this.state.value,
+                        username: username
+                    });
+                }
+                if (this.props.type == "chat") {
+                    console.log('chat message: ' + this.state.value);
+                    this.props.socketio.emit('submit-chat', {
+                        submission: this.state.value,
+                        username: username
+                    });
+                }
                 event.preventDefault();
             }
             //TODO: make sure that submission is less than 240 chars (as of 11/29/19)
             render() {
-                return (
-                    <form onSubmit={this.handleSubmit}>
-                        <label>
-                            Write the next line:
-                            <input type="text" value={this.state.value} onChange={this.handleChange} />
-                        </label>
-                        <input type="submit" value="Submit" />
-                    </form>
-                );
+                if (this.props.type == "vote") {
+                    return (
+                        <form onSubmit={this.handleSubmit}>
+                            <label>
+                                Write the next line:
+                                <input type="text" value={this.state.value} onChange={this.handleChange} />
+                            </label>
+                            <input type="submit" value="Submit" />
+                        </form>
+                    );
+                }
+                if (this.props.type == "chat") {
+                    return (
+                        <form onSubmit={this.handleSubmit}>
+                            <label>
+                                <input type="text" value={this.state.value} onChange={this.handleChange} />
+                            </label>
+                            <input type="submit" value="Submit" />
+                        </form>
+                    );
+                }
+
             }
         }
 
@@ -415,12 +437,27 @@
             }
         }
 
+        class ChatPanel extends React.Component{
+            constructor(props) {
+                super(props);
+                this.state = {chat: []};
+            }
+
+            render() {
+                return (
+                    <div>
+                        <p> chat panel example </p>
+                    </div>
+                );
+            }
+        }
+
         ReactDOM.render(
             <UserPanel name="your username" socketio={socketio} />,
             document.getElementById('user-header')
         );
         ReactDOM.render(
-            <SubmissionForm name={username} socketio={socketio}/>,
+            <SubmissionForm type="vote" name={username} socketio={socketio}/>,
             document.getElementById('submission-div')
         );
         ReactDOM.render(
@@ -437,6 +474,16 @@
         ReactDOM.render(
             <UserPage name={username} socketio={socketio} />,
             document.getElementById('userpage')
+        );
+
+        ReactDOM.render(
+            <ChatPanel socketio={socketio} />,
+            document.getElementById('chat')
+        );
+
+        ReactDOM.render(
+            <SubmissionForm type="chat" name={username} socketio={socketio} />,
+            document.getElementById('chat-submit-div')
         );
         
     </script>
