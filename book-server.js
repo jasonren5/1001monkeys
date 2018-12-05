@@ -246,7 +246,7 @@ io.sockets.on('connection', function (socket) {
 
     //called when logging in to put on the user's page -- this can be used also to grab other users bio, though currently not implemented (12/3)
     socket.on('get-bio', function (data) {
-        console.log('bio requested by ' + data["username"]);
+        //console.log('bio requested by ' + data["username"]);
         var getBio = '';
         sql.query("SELECT bio FROM users where username = ?", data["username"], function (err, result) {
             if (err) throw err;

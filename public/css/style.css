@@ -1,21 +1,39 @@
 body {
     background-color: #000000;
     color: #ffffff;
-    font-size: 130%;
+    font-size: 125%;
     height: 100%;
     margin: 0;
 }
 
+/*
 .container-fluid {
+    
+    height: 100%;
+    
+    display: table;
+    
+}
+*/
+
+#wrapper {
+    /* display: table-row; */
     height: 100%;
 }
+
+/*
+.content {
+    display: table-cell;
+}
+*/
 .col-9 {
     border-right: 1px solid #ffffff;
 }
 
-#main-row {
-    height: 90%;
+#main-col {
+    height: 700px;
 }
+
 
 #userpage-username {
     font-size: 3em;
@@ -24,4 +42,18 @@ body {
 .title {
     font-size: 3em;
     text-align: center;
+}
+
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    border-top: 1px solid #ffffff;
+    background-color: #000000;
+    padding-top: 5px;
+}
+
+#chat {
+    overflow: scroll;
 }

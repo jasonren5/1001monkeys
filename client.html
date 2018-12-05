@@ -21,51 +21,56 @@
     </nav>
     <!-- main container for the content -->
     <div class="container-fluid" id="main-container">
-        <div class="row main-row" id="main-row">
-            <!-- container for showing the book, and showing the submissions to vote on -->
-            <div class="col-9" id="main-col">
-                <!--book, vote, and userpage divs are mutually exlusive; none of them should display at the same time-->
+        <div id="wrapper">
+            <div class="row main-row content" id="main-row">
+                <!-- container for showing the book, and showing the submissions to vote on -->
+                <div class="col-9" id="main-col">
+                    <!--book, vote, and userpage divs are mutually exlusive; none of them should display at the same time-->
 
-                <div id="book">
-                    <div class="title">TODAY'S BOOK</div>
-                    <div id="book-content">example book</div>
+                    <div id="book">
+                        <div class="title">TODAY'S BOOK</div>
+                        <div id="book-content">example book</div>
+                    </div>
+                    <div id="vote">
+                        <div class="title">VOTE FOR THE NEXT ADDITION TO TODAY'S BOOK</div>
+                        <div id="vote-content">example vote </div>
+                    </div>
+                    <div id="userpage">example userpage
+                        <div id="userpage-username">example_username</div>
+                        <div id="userpage-votes">example_votes</div>
+                        <div id="userpage-bio">example_bio</div>
+                    </div>
                 </div>
-                <div id="vote">
-                    <div class="title">VOTE FOR THE NEXT ADDITION TO TODAY'S BOOK</div>
-                    <div id="vote-content">example vote </div>
+                <!-- placeholder div for chat feature -->
+                <div class="col-3" id="chat">example chat</div>
+            </div>
+            <!-- container for the submit button for user submissions -->
+            <footer>
+                <div class="row main-row" id="bottom-main-row">
+                    <div class="col-9">
+                        <div id="submission-div"></div>
+                    </div>
+                    <div class="col-3">
+                        <div id="chat-submit-div"></div>
+                    </div>
                 </div>
-                <div id="userpage">example userpage
-                    <div id="userpage-username">example_username</div>
-                    <div id="userpage-votes">example_votes</div>
-                    <div id="userpage-bio">example_bio</div>
-                </div>
-            </div>
-            <!-- placeholder div for chat feature -->
-            <div class="col-3" id="chat">example chat</div>
-        </div>
-        <!-- container for the submit button for user submissions -->
-        <div class="row main-row" id="bottom-main-row">
-            <div class="col-9">
-                <div id="submission-div"></div>
-            </div>
-            <div class="col-3">
-                <div id="chat-submit-div"></div>
-            </div>
-        </div>
+            </footer>
 
-        <!-- login page, does not display at the same time as the above -->
-        <div class="row" id="login-row">
-            <div class="col-4"></div>
-            <div class="col-4">
-                <p>Username</p>
-                <input id="usernameField" type="text" />
-                <p>Password</p>
-                <input id="passwordField" type="text" />
-                <button id="loginButton">Login</button>
-                <button id="registerButton">Register</button>
-            </div>
-            <div class="col-4"></div>
 
+            <!-- login page, does not display at the same time as the above -->
+            <div class="row" id="login-row">
+                <div class="col-4"></div>
+                <div class="col-4">
+                    <p>Username</p>
+                    <input id="usernameField" type="text" />
+                    <p>Password</p>
+                    <input id="passwordField" type="text" />
+                    <button id="loginButton">Login</button>
+                    <button id="registerButton">Register</button>
+                </div>
+                <div class="col-4"></div>
+
+            </div>
         </div>
     </div>
 
@@ -151,15 +156,14 @@
 
         socketio.on("state-change", function (data) {
             console.log("state changed");
-            if (data.state) {
-                showVote();
-            } else {
-                showBook();
+            if (username != "") {
+                if (data.state) {
+                    showVote();
+                } else {
+                    showBook();
+                }
             }
         });
-
-
-
 
     </script>
 
